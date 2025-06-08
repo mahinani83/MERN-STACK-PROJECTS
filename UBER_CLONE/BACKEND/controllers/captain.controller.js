@@ -63,6 +63,8 @@ module.exports.loginCaptain = async(req,res,next)=>{
         return res.status(400).json({message:"invalid email or password"})
     }
 
+    console.log('found captain',captain)
+
     isMatch = await captain.comparePassword(password);
 
     if(!isMatch){

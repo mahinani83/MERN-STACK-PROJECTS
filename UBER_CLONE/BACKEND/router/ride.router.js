@@ -16,5 +16,26 @@ router.post(
     ],authMiddleware.authUser,rideController.createRide
 );
 
+router.post(
+    '/accept',
+    [
+        body('rideId').notEmpty().withMessage('Ride ID is required').isMongoId().withMessage('Invalid Ride ID'),
+    ],authMiddleware.authCaptain,rideController.acceptRide
+)
+
+router.put(
+    '/start-ride',
+    [
+        body('rideId').notEmpty().withMessage('Ride ID is required').isMongoId().withMessage('Invalid Ride ID'),
+        body('otp').notEmpty().withMessage('OTP is required').isLength({ min: 6, max: 6 }).withMessage('OTP must be 6 digits'),
+    ],authMiddleware.authCaptain,rideController.startRide
+)
+
+router.put(
+    '/end-ride',
+    [
+        body('rideId').notEmpty().withMessage('Ride ID is required').isMongoId().withMessage('Invalid Ride ID'),
+    ],authMiddleware.authCaptain,rideController.endRide
+)
 
 module.exports = router;

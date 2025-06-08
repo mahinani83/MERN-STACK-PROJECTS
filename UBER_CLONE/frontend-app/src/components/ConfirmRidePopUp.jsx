@@ -1,16 +1,48 @@
 import React from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { IoIosArrowDown } from "react-icons/io";
 import { HiUserCircle } from "react-icons/hi2";
 import { HiLocationMarker } from "react-icons/hi";
 import { IoCashOutline } from "react-icons/io5";
+import { toast } from "react-toastify";
+import axios from "axios";
+import CaptainRiding from "../pages/CaptainRiding";
 
-export default function ConfirmRidePopUp({ setConfirmRidePopupPanel, setRidePopUpPanel}) {
+export default function ConfirmRidePopUp({ setConfirmRidePopupPanel, setRidePopUpPanel,ride}) {
   const [otp, setOtp] = React.useState("");
-
-  const submitHandler = (e) => {
+  const navigate = useNavigate();
+  const submitHandler = async (e) => {
     e.preventDefault();
-  };
+    if (otp.trim() === "") {
+      toast.error("Please enter the OTP");
+      return;
+    }
+    try{
+      const response =await axios.put(`${import.meta.env.VITE_BASE_URL}/rides/start-ride`,
+        {
+          rideId : ride._id,
+          otp: otp
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
+        }
+      )
+      if (response.status === 200) {
+        toast.success("Ride confirmed successfully!");
+        setConfirmRidePopupPanel(false);
+        setRidePopUpPanel(false);
+        navigate('/captain-riding', { state: { ride: response.data } });
+      }
+    } catch (error) {
+      console.error("Error confirming ride:", error);
+      toast.error(error.response?.data?.error || "An error occurred while confirming the ride.");
+      return;
+    }
+  }
+
+
 
   return (
     <div>
@@ -72,11 +104,13 @@ export default function ConfirmRidePopUp({ setConfirmRidePopupPanel, setRidePopU
               className="form-control bg-light font-monospace text-lg rounded mt-3"
               placeholder="Enter OTP"
             />
-            <Link to="/captain-riding" className="btn btn-success w-100 mt-3">
+            <button 
+              className="btn btn-success w-100 mt-3"
+              type="submit"
+            >
               Confirm
-            </Link>
+            </button>
             <button
-              type="button"
               onClick={() => {
                 setConfirmRidePopupPanel(false);
                 setRidePopUpPanel(true);

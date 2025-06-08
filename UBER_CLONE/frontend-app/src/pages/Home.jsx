@@ -12,6 +12,9 @@ import { IoIosArrowDown } from "react-icons/io";
 import LookingForDriver from "../components/LookingForDriver";
 import WaitingForDriver from "../components/WaitingForDriver";
 import axios from "axios";
+import { toast } from "react-toastify";
+import LiveTracking from "../components/LiveTracking";
+import { useNavigate } from "react-router-dom";
 
 export default function Home() {
   const [pickup, setPickup] = useState("");
@@ -25,6 +28,8 @@ export default function Home() {
   const [suggestions, setSuggestions] = useState([]);
   const [fare, setFare] = useState({});
   const [vehicleType, setVehicleType] = useState(null);
+  const [ride, setRide] = useState(null);
+  const navigate = useNavigate();
 
   const panelRef = useRef(null);
   const panelCloseRef = useRef(null);
@@ -48,15 +53,40 @@ export default function Home() {
   }, [user]);
 
   socket.on("ride-confirmed", (ride) => {
+    console.log("ride-confirmed event received", ride);
+    setRide(ride);
     setVehicleFound(false);
     setWaitingForDriver(true);
-    setRide(ride);
   });
 
   socket.on("ride-started", (ride) => {
     setWaitingForDriver(false);
     navigate("/riding", { state: { ride } }); // Updated navigate to include ride data
   });
+
+
+ async function handleConfirmRide(){
+  try{
+    await axios.post(
+      `${import.meta.env.VITE_BASE_URL}/rides/create`,{
+        userId:user._id,
+        pickup: pickup,
+        destination: destination,  
+        fare:fare[vehicleType],
+        vehicleType: vehicleType,
+      
+      },{headers: {
+          Authorization: `Bearer ${localStorage.getItem('token')}`
+        }
+      })
+  } catch(err){
+    console.error("Error creating ride:", err);
+    toast.error(err?.response?.data?.error);
+    return;
+  }
+   setVehicleFound(true);
+   setConfirmRidePanel(false);
+ }
 
   async function onLocationChange(e) {
     try {
@@ -75,6 +105,8 @@ export default function Home() {
       console.log(error);
     }
   }
+
+
 
   const locationSubmitHandler = () => {
     if (pickup.length !== 0 || destination.length !== 0) {
@@ -203,11 +235,7 @@ export default function Home() {
         alt="homebackegroundimg"
       />
       <div className="vh-100 vw-100">
-        <img
-          className="h-100 w-100 object-fit-cover"
-          src="https://miro.medium.com/v2/resize:fit:1400/0*gwMx05pqII5hbfmX.gif"
-          alt="uberhomemap"
-        />
+        <LiveTracking />
       </div>
       <div className="w-100 h-100 d-flex flex-column justify-content-end position-absolute bottom-0">
         <div
@@ -303,7 +331,7 @@ export default function Home() {
             fare={fare}
             vehicleType={vehicleType}
             setConfirmRidePanel={setConfirmRidePanel}
-            setVehicleFound={setVehicleFound}
+            handleConfirmRide={handleConfirmRide}
           />
         </div>
         <div
@@ -324,7 +352,10 @@ export default function Home() {
           style={{ transform: "translateY(100%)" }}
           ref={waitingForDriverRef}
         >
-          <WaitingForDriver setWaitingForDriver={setWaitingForDriver} />
+          <WaitingForDriver 
+            setWaitingForDriver={setWaitingForDriver}
+            ride={ride}
+          />
         </div>
       </div>
     </div>

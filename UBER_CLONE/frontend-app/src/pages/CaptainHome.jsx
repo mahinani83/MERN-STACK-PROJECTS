@@ -2,7 +2,7 @@ import React, { useRef, useState, useEffect } from "react";
 import { useContext } from "react";
 import { CaptainDataContext } from "../context/CaptainContext";
 import { SocketContext } from "../context/SocketProvider";
-import { Link } from "react-router-dom";
+import { data, Link } from "react-router-dom";
 import CaptainDetails from "../components/CaptainDetails";
 import RidePopup from "../components/RidePopUp";
 import ConfirmRidePopup from "../components/ConfirmRidePopUp";
@@ -16,36 +16,50 @@ export default function CaptainHome() {
 
   const { socket } = useContext(SocketContext);
 
-  const [ridePopUpPanel, setRidePopUpPanel] = useState(true);
+  const [ridePopUpPanel, setRidePopUpPanel] = useState(false);
   const [confirmRidePopupPanel, setConfirmRidePopupPanel] = useState(false);
+  const [ride,setRide] = useState(null);
 
   const ridePopUpPanelRef = useRef(null);
   const confirmRidePopupPanelRef = useRef(null);
 
-  useEffect(() => {
-    socket.emit("join", {
-      userId: captain._id,
-      userType: "captain",
-    });
+ useEffect(() => {
+  // Join room and location updates (existing code)
+  socket.emit("join", {
+    userId: captain._id,
+    userType: "captain",  
+  });
 
-    const updateLocation = () => {
-      if (navigator.geolocation) {
-        navigator.geolocation.getCurrentPosition((position) => {
-          socket.emit("update-location-captain", {
-            userId: captain._id,
-            location: {
-              ltd: position.coords.latitude,
-              lng: position.coords.longitude,
-            },
-          });
+  const updateLocation = () => {
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition((position) => {
+        socket.emit("update-location-captain", {
+          userId: captain._id,
+          location: {
+            ltd: position.coords.latitude,
+            lng: position.coords.longitude,
+          },
         });
-      }
-    };
-    const locationInterval = setInterval(updateLocation, 10000)
-    updateLocation();
+      });
+    }
+  };
+  const locationInterval = setInterval(updateLocation, 10000);
+  updateLocation();
 
-    return () => clearInterval(locationInterval);
-  }, []);
+  // Add the "new-ride" listener here
+  const handleNewRide = (ride) => {
+    console.log("New ride received:", ride);
+    setRide(ride);
+    setRidePopUpPanel(true);
+  };
+  socket.on("new-ride", handleNewRide);
+
+  // Cleanup: Remove listener and interval
+  return () => {
+    clearInterval(locationInterval);
+    socket.off("new-ride", handleNewRide); // Remove the listener
+  };
+}, [socket, captain._id]); // Add dependencies
 
   useGSAP(
     function () {
@@ -101,7 +115,7 @@ export default function CaptainHome() {
         />
       </div>
       <div className="bg-white position-fixed bottom-0 px-3 h-0 w-100 ">
-        <CaptainDetails />
+        <CaptainDetails captain={captain}/>
       </div>
       <div
         className="bg-white position-fixed bottom-0 px-3 h-0 w-100"
@@ -111,6 +125,7 @@ export default function CaptainHome() {
         <RidePopup
           setConfirmRidePopupPanel={setConfirmRidePopupPanel}
           setRidePopUpPanel={setRidePopUpPanel}
+          ride={ride}
         />
       </div>
       <div
@@ -121,6 +136,7 @@ export default function CaptainHome() {
         <ConfirmRidePopup
           setConfirmRidePopupPanel={setConfirmRidePopupPanel}
           setRidePopUpPanel={setRidePopUpPanel}
+          ride={ride}
         />
       </div>
     </div>

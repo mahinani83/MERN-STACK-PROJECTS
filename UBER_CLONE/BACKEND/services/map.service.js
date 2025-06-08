@@ -1,4 +1,5 @@
 const axios = require('axios');
+const captainModel = require('../models/captain');
 
 
 module.exports.getAddressCoordinate = async (address) => {
@@ -35,7 +36,6 @@ module.exports.getDistanceTime = async (origin, destination) => {
 
     try {
 
-
         const response = await axios.get(url);
         if (response.data.status === 'OK') {
 
@@ -43,7 +43,7 @@ module.exports.getDistanceTime = async (origin, destination) => {
                 throw new Error('No routes found');
             }
             
-            console.log(response.data.rows[ 0 ].elements[ 0 ]);
+            console.log("distance and duration",response.data.rows[ 0 ].elements[ 0 ]);
 
             return response.data.rows[ 0 ].elements[ 0 ];
         } else {

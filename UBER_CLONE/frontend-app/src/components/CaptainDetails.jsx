@@ -2,9 +2,8 @@ import React from "react";
 import { useContext } from "react";
 import { CaptainDataContext } from "../context/CaptainContext";
 
-export default function CaptainDetails() {
+export default function CaptainDetails({captain}) {
 
-  const { captain } = useContext(CaptainDataContext);
   return (
     <div className="container mt-4 mb-3 h-25">
       <div className="d-flex align-items-center justify-content-between">

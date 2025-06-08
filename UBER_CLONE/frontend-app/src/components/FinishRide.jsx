@@ -3,10 +3,35 @@ import { IoIosArrowDown } from "react-icons/io";
 import { HiUserCircle } from "react-icons/hi2";
 import { HiLocationMarker } from "react-icons/hi";
 import { IoCashOutline } from "react-icons/io5";
+import { toast } from "react-toastify";
+import axios from "axios";
+export default function FinishRide({setFinishRidePanel,ride}) {
 
-export default function FinishRide({setFinishRidePanel}) {
+    const endRide = async () => {
+      console.log("ride",ride);
+      if (!ride || !ride._id) {
+        toast.error("Ride not found");
+        return;
+      }
 
-    const endRide = () => {
+      try{
+        const response = await axios.put(`${import.meta.env.VITE_BASE_URL}/rides/end-ride`,
+          {
+            rideId:ride._id // Replace with actual ride ID
+          },
+          {
+            headers: {
+              Authorization: `Bearer ${localStorage.getItem("token")}`,
+            },
+          }
+        )
+
+        console.log("response of endin ride",response);
+      } catch (error) {
+        console.error("Error ending ride:", error);
+        toast.error(error.response?.data?.error || "An error occurred while ending the ride.");
+        return;
+      }
     }
   return (
     <div>
@@ -27,10 +52,10 @@ export default function FinishRide({setFinishRidePanel}) {
             style={{ height: "15vmin", width: "15vmin", objectFit: "cover" }}
           />
           <h2 className="h6 font-weight-medium">
-            puliganti mahendar
+            {ride?.user?.fullname?.firstname + " " + ride?.user?.fullname?.lastname}
           </h2>
         </div>
-        <h5 className="h6 font-weight-bold">2.2 KM</h5>
+        <h5 className="h6 font-weight-bold">{ride?.distance} KM</h5>
       </div>
 
       <div className="d-flex flex-column align-items-center gap-2">
@@ -39,20 +64,20 @@ export default function FinishRide({setFinishRidePanel}) {
             <h2 className="pe-2"><HiUserCircle /></h2>
             <div>
               <h3 className="h6 font-weight-medium">562/11-A</h3>
-              <p className="text-dark medium mb-0">hyderabad</p>
+              <p className="text-dark medium mb-0">{ride?.pickup}</p>
             </div>
           </div>
           <div className="d-flex align-items-center gap-2 p-3 border-bottom">
             <h2 className="pe-2"><HiLocationMarker /></h2>
             <div>
               <h3 className="h6 font-weight-medium">562/11-A</h3>
-              <p className="text-dark medium mb-0">mumbai</p>
+              <p className="text-dark medium mb-0">{ride?.destination}</p>
             </div>
           </div>
           <div className="d-flex align-items-center gap-2 p-3">
             <h2 className="pe-2"><IoCashOutline /></h2>
             <div>
-              <h3 className="h6 font-weight-medium">₹200</h3>
+              <h3 className="h6 font-weight-medium">₹{ride?.fare}</h3>
               <p className="text-dark medium mb-0">Cash Cash</p>
             </div>
           </div>

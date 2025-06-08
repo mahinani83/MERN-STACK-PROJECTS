@@ -5,7 +5,7 @@ import { HiLocationMarker } from "react-icons/hi";
 import { IoCashOutline } from "react-icons/io5";
 import { MdHeight } from "react-icons/md";
 
-export default function ConfirmRide({fare,pickup,destination,vehicleType, setConfirmRidePanel,setVehicleFound }) {
+export default function ConfirmRide({fare,pickup,destination,vehicleType, setConfirmRidePanel,handleConfirmRide}) {
 
   return (
     <div>
@@ -65,10 +65,7 @@ export default function ConfirmRide({fare,pickup,destination,vehicleType, setCon
             <p className="m-0 text-muted">Cash Cash</p>
           </div>
         </div>
-        <button onClick={()=>{
-           setVehicleFound(true)
-           setConfirmRidePanel(false)
-           }} className="btn btn-success w-100 fw-semibold py-2">Confirm</button>
+        <button onClick={handleConfirmRide} className="btn btn-success w-100 fw-semibold py-2">Confirm</button>
       </div>
     </div>
   );

@@ -4,7 +4,9 @@ import { HiUserCircle } from "react-icons/hi2";
 import { HiLocationMarker } from "react-icons/hi";
 import { IoCashOutline } from "react-icons/io5";
 
-export default function WaitingForDriver({setWaitingForDriver}) {
+export default function WaitingForDriver({setWaitingForDriver,ride}) {
+
+  console.log("ride", ride);
   return (
     <div>
       <h3
@@ -19,10 +21,10 @@ export default function WaitingForDriver({setWaitingForDriver}) {
       <div className='d-flex align-items-center justify-content-between'>
         <img className='w-50' src="https://swyft.pl/wp-content/uploads/2023/05/how-many-people-can-a-uberx-take.jpg" alt="" />
         <div className="text-end">
-          <h2 className="fs-5 fw-medium text-capitalize">Salman</h2>
-          <h4 className="fs-4 fw-semibold mt-n1 mb-n1">AP36M4421</h4>
-          <p className="fs-6 text-secondary">Maruti Suzuki Alto</p>
-          <h1 className="fs-5 fw-semibold">OTP</h1>
+          <h2 className="fs-5 fw-medium text-capitalize">{ride?.captain.fullname.firstname}</h2>
+          <h4 className="fs-4 fw-semibold mt-n1 mb-n1">{ride?.captain.vehicle.plate}</h4>
+          <p className="fs-6 text-secondary">{ride?.captain.vehicle.vehicleType}</p>
+          <h1 className="fs-5 fw-semibold">{ride?.otp}</h1>
         </div>
       </div>
 
@@ -33,7 +35,7 @@ export default function WaitingForDriver({setWaitingForDriver}) {
           </span>
           <div>
             <h4 className="m-0 fw-semibold">562/11-A</h4>
-            <p className="m-0 text-muted">Kankariya,Bhopal</p>
+            <p className="m-0 text-muted">{ride?.pickup}</p>
           </div>
         </div>
         <div className="d-flex gap-2 border-bottom border-muted p-3">
@@ -42,7 +44,7 @@ export default function WaitingForDriver({setWaitingForDriver}) {
           </span>
           <div>
             <h4 className="m-0 fw-semibold">562/11-A</h4>
-            <p className="m-0 text-muted">Kankariya,Bhopal</p>
+            <p className="m-0 text-muted">{ride?.destination}</p>
           </div>
         </div>
         <div className="d-flex gap-2 p-3">
@@ -50,7 +52,7 @@ export default function WaitingForDriver({setWaitingForDriver}) {
             <IoCashOutline className="fs-2" />
           </span>
           <div>
-            <h4 className="m-0 fw-semibold">₹193.2</h4>
+            <h4 className="m-0 fw-semibold">{ride?.fare}</h4>
             <p className="m-0 text-muted">Cash Cash</p>
           </div>
         </div>

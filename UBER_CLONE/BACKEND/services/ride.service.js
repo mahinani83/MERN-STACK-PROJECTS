@@ -1,4 +1,5 @@
 
+const captainModel = require('../models/captain');
 const rideModel = require('../models/ride');
 const mapService = require('./map.service');
 const crypto = require('crypto');
@@ -58,22 +59,69 @@ module.exports = {getFare,getOtp}
 
 
 
-module.exports.createRide = async ({ user, pickup, destination,vehicleType }) => {
+module.exports.createRide = async ({ user, pickup, destination,fare,vehicleType,distance }) => {
     
     if (!user || !pickup || !destination || !vehicleType) {
         throw new Error('All fields are required');
     }
-
-    const fare = await getFare(pickup, destination);
 
     const newRide = await rideModel.create({
         user,
         pickup,
         destination,
         otp: getOtp(6),
-        fare:fare[vehicleType],
+        fare:fare,
+        distance:distance
     });
 
-        
     return newRide;
-}   
+}
+
+module.exports.startRide = async (rideId,otp) => {
+    if (!rideId || !otp) {
+        throw new Error('Ride ID and Captain ID are required');
+    }
+
+    const ride = await rideModel.findById(rideId).populate('user').populate('captain').select('+otp');
+    if (!ride) {
+        const err = new Error('Ride not found');
+        err.status = 404;
+        throw err;
+    }
+
+    if (ride.status !== 'accepted') {
+        const error = new Error('Ride must be accepted before starting');
+        error.status = 400;
+        throw error;
+    }
+
+    if (ride.otp !== otp) {
+       const error = new Error('Invalid OTP');
+        error.status = 400;
+        throw error;
+    }
+
+    ride.status = 'ongoing';
+    await ride.save();
+
+    return ride;
+}
+
+
+module.exports.endRide = async (rideId) =>{
+    if (!rideId) {
+        throw new Error('Ride ID is required');
+    }
+
+    const ride = await rideModel.findById(rideId).populate('user').populate('captain');
+    if (!ride) {
+        const err = new Error('Ride not found');
+        err.status = 404;
+        throw err;
+    }
+
+    ride.status = 'completed';
+    await ride.save();
+
+    return ride;
+}

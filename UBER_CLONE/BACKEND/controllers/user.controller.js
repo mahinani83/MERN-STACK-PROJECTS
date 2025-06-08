@@ -37,6 +37,7 @@ module.exports.registerUser = async(req,res,next) =>{
 module.exports.loginUser = async(req,res,next)=>{
 
     console.log('at loginuser backend')
+    
     const errors = validationResult(req);   
          // this is an array
     if(!errors.isEmpty()){

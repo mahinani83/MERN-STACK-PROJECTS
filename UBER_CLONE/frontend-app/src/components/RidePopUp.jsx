@@ -3,9 +3,38 @@ import { IoIosArrowDown } from "react-icons/io";
 import { HiUserCircle } from "react-icons/hi2";
 import { HiLocationMarker } from "react-icons/hi";
 import { IoCashOutline } from "react-icons/io5";
+import { toast } from 'react-toastify';
+import axios from 'axios';
+
 
 
 const RidePopup = (props) => {
+      async function handleAcceptRide() {
+        if (!props?.ride) {
+          toast.error("Ride not found")
+        }
+        try{
+            await axios.post(
+                `${import.meta.env.VITE_BASE_URL}/rides/accept`,
+                {
+                rideId: props?.ride?._id
+                },
+                {
+                headers: {
+                    Authorization: `Bearer ${localStorage.getItem("token")}`,
+                },
+                }
+            );
+      
+        }catch(error){
+            console.log("error",error);
+          toast.error(error.response?.data?.error || "An error occurred while accepting the ride.");
+          return;
+        }
+        props?.setConfirmRidePopupPanel(true);
+        props?.setRidePopUpPanel(false);
+      }
+
     return (
         <div>
             <h5 
@@ -29,10 +58,10 @@ const RidePopup = (props) => {
                         alt="" 
                     />
                     <h2 className="h5 font-weight-medium mb-0">
-                        Mahendar Puliganti
+                        {props?.ride?.user?.fullname?.firstname}
                     </h2>
                 </div>
-                <h5 className="h5 font-weight-semibold text-center">2.2 KM</h5>
+                <h5 className="h5 font-weight-semibold text-center">{props?.ride?.distance} KM</h5>
             </div>
 
 
@@ -42,20 +71,20 @@ const RidePopup = (props) => {
                     <h2 className="pe-2"><HiUserCircle /></h2>
                         <div>
                             <h3 className="h6 font-weight-medium">562/11-A</h3>
-                            <p className="text-dark medium mb-0">hydarabad</p>
+                            <p className="text-dark medium mb-0">{props?.ride?.pickup}</p>
                         </div>
                     </div>
                     <div className="d-flex align-items-center gap-3 p-3 border-bottom">
                     <h2 className="pe-2"><HiLocationMarker /></h2>
                         <div>
                             <h3 className="h6 font-weight-medium">562/11-A</h3>
-                            <p className="text-dark medium mb-0">Manthani</p>
+                            <p className="text-dark medium mb-0">{props?.ride?.destination}</p>
                         </div>
                     </div>
                     <div className="d-flex align-items-center gap-3 p-3">
                     <h2 className="pe-2"><IoCashOutline /></h2>
                         <div>
-                            <h3 className="h6 font-weight-medium">200</h3>
+                            <h3 className="h6 font-weight-medium">{props?.ride?.fare}</h3>
                             <p className="text-dark medium mb-0">Cash Cash</p>
                         </div>
                     </div>
@@ -64,10 +93,7 @@ const RidePopup = (props) => {
 
                 <div className="mt-3 w-100">
                     <button 
-                        onClick={() => {
-                            props.setConfirmRidePopupPanel(true);
-                            props.setRidePopUpPanel(false);
-                        }} 
+                        onClick={handleAcceptRide} 
                         className="btn btn-success w-100 font-weight-semibold py-2"
                     >
                         Accept

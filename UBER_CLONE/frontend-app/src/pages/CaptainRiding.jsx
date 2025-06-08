@@ -1,16 +1,26 @@
 import React, { useRef } from "react";
-import { useState } from "react";
+import { useState,useContext } from "react";
 import { Link } from "react-router-dom";
 import { MdExitToApp } from "react-icons/md";
 import { IoIosArrowUp } from "react-icons/io";
 import FinishRide from "../components/FinishRide";
 import { useGSAP } from "@gsap/react";
 import gsap from "gsap";
+import LiveTracking from "../components/LiveTracking";
+import { useLocation } from "react-router-dom";
+import { SocketContext } from "../context/SocketProvider";
+
+
+
 
 export default function CaptainRiding() {
   const [finishRidePanel, setFinishRidePanel] = useState(false);
-
+  const location = useLocation();
+  const {ride } = location.state || {}; // Retrieve ride data
+  console.log("Ride data:", ride);
+  const { socket } = useContext(SocketContext);
   const finishRidePanelRef = useRef(null);
+
 
   useGSAP(function () {
     if (finishRidePanel) {
@@ -62,7 +72,11 @@ export default function CaptainRiding() {
         </div>
       </div>
       <div ref={finishRidePanelRef} className="bg-white position-fixed bottom-0 px-3 h-0 w-100" style={{ transform: "translateY(100%)" }} >
-              <FinishRide setFinishRidePanel={setFinishRidePanel} />
+          <FinishRide ride={ride} setFinishRidePanel={setFinishRidePanel} />
+        </div>
+
+        <div className='h-screen fixed w-screen top-0 z-[-1]'>
+          <LiveTracking />
         </div>
     </div>
   );

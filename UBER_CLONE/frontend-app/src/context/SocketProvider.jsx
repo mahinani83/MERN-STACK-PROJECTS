@@ -4,11 +4,16 @@ import { io } from 'socket.io-client';
 
 export const SocketContext = createContext();
 
-const socket = io(`${import.meta.env.VITE_BASE_URL}`); // Replace with your server URL
+console.log("Connecting to:", import.meta.env.VITE_BASE_URL);
+
+const socket = io(`${import.meta.env.VITE_BASE_URL}`); 
+
+
+console.log("socket", socket);
 
 const SocketProvider = ({ children }) => {
     useEffect(() => {
-        // Basic connection logic
+        // Basic connection logic 
         socket.on('connect', () => {
             console.log('Connected to server');
         });

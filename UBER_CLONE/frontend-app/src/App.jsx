@@ -14,6 +14,7 @@ import { Routes, Route } from "react-router-dom";
 import 'react-toastify/dist/ReactToastify.css';
 import "./App.css";
 import { ToastContainer } from "react-toastify";
+import Riding from "./pages/Riding";
 
 
 function App() {
@@ -32,6 +33,7 @@ function App() {
         />
 
         <Route path="/login" element={<UserLogin />} />
+        <Route path='/riding' element={<Riding />} />
         <Route path="/logout" element={<UserLogout />} />
         <Route path="/signup" element={<UserSignUp />} />
         <Route

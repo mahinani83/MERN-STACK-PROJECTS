@@ -36,7 +36,7 @@ export default function CaptainLogin() {
       setEmail('')
       setPassword('')
       }catch(err){
-        console.log('error in captain login',err.response.data.message)
+        console.log('error in captain login')
       }
     }
   return (
